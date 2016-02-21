@@ -108,6 +108,7 @@ public class StringSetImpl implements StringSet {
             for (char ch : element.toCharArray()) {
                 int idxNextNode = curNode.index(ch);
                 curNode.sizeSubTree -= 1;
+
                 if (curNode.sizeSubTree == 0) {
                     curNode.children[idxNextNode] = null;
                     return true;
@@ -115,6 +116,8 @@ public class StringSetImpl implements StringSet {
 
                 curNode = curNode.children[idxNextNode];
             }
+            curNode.isUsed = false;
+            return true;
         }
 
         return false;
@@ -128,19 +131,15 @@ public class StringSetImpl implements StringSet {
     @Override
     public int howManyStartsWithPrefix(String prefix) {
         StringSetNode curNode = root;
-        int num = 0;
 
         for (char ch : prefix.toCharArray()) {
             curNode = curNode.findNextNode(ch);
 
             if (curNode == null) {
                 return 0;
-            } else if (curNode.isUsed){
-                num += 1;
             }
         }
-
-        num += curNode.sizeSubTree;
-        return curNode.isUsed ? 1 + num : num;
+        
+        return curNode.isUsed ? 1 + curNode.sizeSubTree : curNode.sizeSubTree;
     }
 }

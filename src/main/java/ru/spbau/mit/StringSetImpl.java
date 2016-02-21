@@ -5,7 +5,7 @@ package ru.spbau.mit;
  */
 public class StringSetImpl implements StringSet {
 
-    private StringSetNode root;
+    private final StringSetNode root;
 
     private class StringSetNode {
         StringSetNode[] children;
@@ -97,11 +97,7 @@ public class StringSetImpl implements StringSet {
             }
         }
 
-        if (!curNode.isUsed) {
-            return false;
-        }
-
-        return true;
+        return curNode.isUsed;
     }
 
     @Override
@@ -111,10 +107,9 @@ public class StringSetImpl implements StringSet {
 
             for (char ch : element.toCharArray()) {
                 int idxNextNode = curNode.index(ch);
-
-                if (curNode.sizeSubTree == 1) {
+                curNode.sizeSubTree -= 1;
+                if (curNode.sizeSubTree == 0) {
                     curNode.children[idxNextNode] = null;
-                    curNode.sizeSubTree = 0;
                     return true;
                 }
 

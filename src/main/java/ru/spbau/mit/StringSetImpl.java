@@ -131,7 +131,7 @@ public class StringSetImpl implements StringSet {
     @Override
     public int howManyStartsWithPrefix(String prefix) {
         if (prefix.equals("")) {
-            return size();
+            return size() + 1;
         }
 
         StringSetNode curNode = root;
@@ -144,6 +144,6 @@ public class StringSetImpl implements StringSet {
             }
         }
 
-        return curNode.sizeSubTree;
+        return curNode.isUsed ? 1 + curNode.sizeSubTree : curNode.sizeSubTree;
     }
 }

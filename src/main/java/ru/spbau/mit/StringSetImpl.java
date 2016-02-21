@@ -64,6 +64,11 @@ public class StringSetImpl implements StringSet {
 
     @Override
     public boolean add(String element) {
+        if (element.equals("")) {
+            root.isUsed = true;
+            return true;
+        }
+
         StringSetNode curNode = root;
 
         for (char ch : element.toCharArray()) {
@@ -125,13 +130,13 @@ public class StringSetImpl implements StringSet {
 
     @Override
     public int size() {
-        return root.sizeSubTree;
+        return root.isUsed ? 1 + root.sizeSubTree : root.sizeSubTree;
     }
 
     @Override
     public int howManyStartsWithPrefix(String prefix) {
         if (prefix.equals("")) {
-            return size() + 1;
+            return size();
         }
 
         StringSetNode curNode = root;

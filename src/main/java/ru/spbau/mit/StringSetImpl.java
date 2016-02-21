@@ -144,6 +144,6 @@ public class StringSetImpl implements StringSet {
             }
         }
 
-        return curNode.isUsed ? 1 + curNode.sizeSubTree : curNode.sizeSubTree;
+        return curNode.sizeSubTree;
     }
 }

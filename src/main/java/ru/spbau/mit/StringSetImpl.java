@@ -130,6 +130,10 @@ public class StringSetImpl implements StringSet {
 
     @Override
     public int howManyStartsWithPrefix(String prefix) {
+        if (prefix.equals("")) {
+            return size();
+        }
+
         StringSetNode curNode = root;
 
         for (char ch : prefix.toCharArray()) {

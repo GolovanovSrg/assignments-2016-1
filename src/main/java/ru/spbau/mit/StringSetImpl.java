@@ -76,7 +76,7 @@ public class StringSetImpl implements StringSet {
             curNode = root;
             for (char ch : element.toCharArray()) {
                 curNode.sizeSubTree += 1;
-                curNode = curNode.getNextNode(ch);
+                curNode = curNode.findNextNode(ch);
             }
 
             return true;
@@ -131,7 +131,7 @@ public class StringSetImpl implements StringSet {
     @Override
     public int howManyStartsWithPrefix(String prefix) {
         if (prefix.equals("")) {
-            return size();
+            return size() + 1;
         }
 
         StringSetNode curNode = root;

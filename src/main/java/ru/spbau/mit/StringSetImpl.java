@@ -64,11 +64,6 @@ public class StringSetImpl implements StringSet {
 
     @Override
     public boolean add(String element) {
-        if (element.equals("")) {
-            root.isUsed = true;
-            return true;
-        }
-
         StringSetNode curNode = root;
 
         for (char ch : element.toCharArray()) {

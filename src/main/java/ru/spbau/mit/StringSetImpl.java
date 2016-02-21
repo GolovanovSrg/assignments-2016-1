@@ -125,7 +125,7 @@ public class StringSetImpl implements StringSet {
 
     @Override
     public int size() {
-        return root.sizeSubTree + 1;
+        return root.sizeSubTree;
     }
 
     @Override

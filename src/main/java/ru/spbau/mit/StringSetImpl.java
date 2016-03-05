@@ -6,6 +6,7 @@ package ru.spbau.mit;
 public class StringSetImpl implements StringSet {
 
     private final StringSetNode root;
+    private static final byte numChar = 52;
 
     private class StringSetNode {
         StringSetNode[] children;
@@ -13,25 +14,21 @@ public class StringSetImpl implements StringSet {
         boolean isUsed;
 
         public StringSetNode() {
-            children =  new StringSetNode[52];
+            children =  new StringSetNode[numChar];
             sizeSubTree = 0;
             isUsed = false;
         }
 
-        private int index(char ch) {
-            final byte lowerOffset = 71; //ASCII
-            final byte upperOffset = 65; //ASCII
-            final byte aNo = 97; //ASCII
-
-            if (ch >= aNo) {
-                return ch - lowerOffset;
+        private int indexChar(char ch) {
+            if (ch <= 'Z') {
+                return ch - 'A';
             } else {
-                return ch - upperOffset;
+                return ('Z' - 'A' + 1) + (ch - 'a');
             }
         }
 
         public StringSetNode getNextNode(char ch) {
-            int idxNextNode = index(ch);
+            int idxNextNode = indexChar(ch);
             StringSetNode nextNode = children[idxNextNode];
 
             if (nextNode == null) {
@@ -42,14 +39,8 @@ public class StringSetImpl implements StringSet {
         }
 
         public StringSetNode findNextNode(char ch) {
-            int idxNextNode = index(ch);
-            StringSetNode nextNode = children[idxNextNode];
-
-            if (nextNode == null) {
-                return null;
-            }
-
-            return nextNode;
+            int idxNextNode = indexChar(ch);
+            return children[idxNextNode];
         }
     }
 
@@ -62,88 +53,95 @@ public class StringSetImpl implements StringSet {
         add(element);
     }
 
-    @Override
-    public boolean add(String element) {
+    private StringSetNode getElemNode(String element) {
         StringSetNode curNode = root;
 
-        for (char ch : element.toCharArray()) {
+        for (int i = 0; i < element.length(); i++) {
+            char ch = element.charAt(i);
             curNode = curNode.getNextNode(ch);
         }
 
-        if (!curNode.isUsed) {
-            curNode.isUsed = true;
+        return curNode;
+    }
 
-            curNode = root;
-            for (char ch : element.toCharArray()) {
-                curNode.sizeSubTree += 1;
-                curNode = curNode.findNextNode(ch);
+    private StringSetNode findElemNode(String element) {
+        StringSetNode curNode = root;
+
+        for (int i = 0; i < element.length(); i++) {
+            char ch = element.charAt(i);
+            curNode = curNode.findNextNode(ch);
+
+            if (curNode == null) {
+                break;
             }
-
-            return true;
         }
 
-        return false;
+        return curNode;
+    }
+
+
+    @Override
+    public boolean add(String element) {
+        StringSetNode curNode = getElemNode(element);
+
+        if (curNode.isUsed) {
+            return false;
+        }
+
+        curNode.isUsed = true;
+
+        curNode = root;
+        curNode.sizeSubTree++;
+
+        for (int i = 0; i < element.length(); i++) {
+            char ch = element.charAt(i);
+            curNode = curNode.findNextNode(ch);
+            curNode.sizeSubTree++;
+        }
+
+        return true;
     }
 
     @Override
     public boolean contains(String element) {
-        StringSetNode curNode = root;
-
-        for (char ch : element.toCharArray()) {
-            curNode = curNode.findNextNode(ch);
-
-            if (curNode == null) {
-                return false;
-            }
-        }
-
-        return curNode.isUsed;
+        StringSetNode curNode = findElemNode(element);
+        return (curNode != null) && curNode.isUsed;
     }
 
     @Override
     public boolean remove(String element) {
-        if (contains(element)) {
-            StringSetNode curNode = root;
-
-            for (char ch : element.toCharArray()) {
-                int idxNextNode = curNode.index(ch);
-                curNode.sizeSubTree -= 1;
-
-                if (curNode.sizeSubTree == 0) {
-                    curNode.children[idxNextNode] = null;
-                    return true;
-                }
-
-                curNode = curNode.children[idxNextNode];
-            }
-            curNode.isUsed = false;
-            return true;
+        if (!contains(element)) {
+            return false;
         }
 
-        return false;
+        StringSetNode curNode = root;
+        curNode.sizeSubTree--;
+
+        for (int i = 0; i < element.length(); i++) {
+            char ch = element.charAt(i);
+
+            if (curNode.sizeSubTree == 0) {
+                int idxNextNode = curNode.indexChar(ch);
+                curNode.children[idxNextNode] = null;
+                return true;
+            }
+
+            curNode = curNode.findNextNode(ch);
+            curNode.sizeSubTree--;
+        }
+        curNode.isUsed = false;
+
+        return true;
     }
 
     @Override
     public int size() {
-        return root.isUsed ? 1 + root.sizeSubTree : root.sizeSubTree;
+        return root.sizeSubTree;
     }
 
     @Override
     public int howManyStartsWithPrefix(String prefix) {
-        if (prefix.equals("")) {
-            return size();
-        }
-
-        StringSetNode curNode = root;
-
-        for (char ch : prefix.toCharArray()) {
-            curNode = curNode.findNextNode(ch);
-
-            if (curNode == null) {
-                return 0;
-            }
-        }
-
-        return curNode.isUsed ? 1 + curNode.sizeSubTree : curNode.sizeSubTree;
+        StringSetNode curNode = findElemNode(prefix);
+        return (curNode == null) ? 0 : curNode.sizeSubTree;
     }
 }

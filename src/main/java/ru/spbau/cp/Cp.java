@@ -14,22 +14,22 @@ public class Cp {
             return;
         }
 
-        try (BufferedInputStream input =
-                     new BufferedInputStream(new FileInputStream(args[0]), sizeBuf)) {
+        File f = new File(args[1]);
 
-            File f = new File(args[1]);
+        try (BufferedInputStream input =
+                     new BufferedInputStream(new FileInputStream(args[0]), sizeBuf);
+             BufferedOutputStream output =
+                     new BufferedOutputStream(new FileOutputStream(f), sizeBuf)) {
+
             if (!f.exists()) {
                 f.createNewFile();
             }
 
-            try (BufferedOutputStream output =
-                         new BufferedOutputStream(new FileOutputStream(f), sizeBuf)) {
-                int b;
-                while ((b = input.read()) != -1) {
-                    output.write(b);
-                }
+            int b;
+            while ((b = input.read()) != -1) {
+                output.write(b);
             }
-            
+
         } catch (FileNotFoundException e) {
             System.err.println("Couldn't find file: " + args[1]);
         } catch (IOException e) {

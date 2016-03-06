@@ -22,24 +22,18 @@ public class Cp {
                 f.createNewFile();
             }
 
-            try(BufferedOutputStream output =
-                        new BufferedOutputStream(new FileOutputStream(f), sizeBuf)) {
+            try (BufferedOutputStream output =
+                         new BufferedOutputStream(new FileOutputStream(f), sizeBuf)) {
                 int b;
                 while ((b = input.read()) != -1) {
                     output.write(b);
                 }
-
-            } catch (IOException e) {
-                System.err.println("Strange IOException happened. Message: " + e.getMessage());
-                throw new Exception("BufferedOutputStream exception");
             }
-
+            
         } catch (FileNotFoundException e) {
             System.err.println("Couldn't find file: " + args[1]);
         } catch (IOException e) {
             System.err.println("Strange IOException happened. Message: " + e.getMessage());
-        } catch (Exception e) {
-            return;
         }
     }
 }

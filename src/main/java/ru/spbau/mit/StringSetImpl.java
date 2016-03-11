@@ -1,16 +1,14 @@
 package ru.spbau.mit;
 
-import java.io.*;
-
 /**
  * Created by golovanov on 21.02.16.
  */
-public class StringSetImpl implements StringSet, StreamSerializable {
+public class StringSetImpl implements StringSet {
 
-    private StringSetNode root;
+    private final StringSetNode root;
     private static final byte numChar = 52;
 
-    private static class StringSetNode implements Serializable {
+    private class StringSetNode {
         StringSetNode[] children;
         int sizeSubTree;
         boolean isUsed;
@@ -145,23 +143,5 @@ public class StringSetImpl implements StringSet, StreamSerializable {
     public int howManyStartsWithPrefix(String prefix) {
         StringSetNode curNode = findElemNode(prefix);
         return (curNode == null) ? 0 : curNode.sizeSubTree;
-    }
-
-    @Override
-    public void serialize(OutputStream out) throws SerializationException {
-        try (ObjectOutputStream objOut = new ObjectOutputStream(out)) {
-            objOut.writeObject(root);
-        } catch (IOException e) {
-            throw new SerializationException();
-        }
-    }
-
-    @Override
-    public void deserialize(InputStream in) throws SerializationException {
-        try (ObjectInputStream objIn = new ObjectInputStream(in)) {
-            root = (StringSetNode)objIn.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new SerializationException();
-        }
     }
 }

@@ -1,20 +1,22 @@
 package ru.spbau.mit;
 
+import java.io.*;
+
 /**
  * Created by golovanov on 21.02.16.
  */
-public class StringSetImpl implements StringSet {
+public class StringSetImpl implements StringSet, StreamSerializable {
 
-    private final StringSetNode root;
-    private static final byte numChar = 52;
+    private StringSetNode root;
+    private static final byte NUM_CHAR = 52;
 
-    private class StringSetNode {
-        StringSetNode[] children;
-        int sizeSubTree;
-        boolean isUsed;
+    private static class StringSetNode {
+        private StringSetNode[] children;
+        private int sizeSubTree;
+        private boolean isUsed;
 
-        public StringSetNode() {
-            children =  new StringSetNode[numChar];
+        StringSetNode() {
+            children =  new StringSetNode[NUM_CHAR];
             sizeSubTree = 0;
             isUsed = false;
         }
@@ -32,7 +34,8 @@ public class StringSetImpl implements StringSet {
             StringSetNode nextNode = children[idxNextNode];
 
             if (nextNode == null) {
-                nextNode = children[idxNextNode] = new StringSetNode();
+                children[idxNextNode] = new StringSetNode();
+                nextNode = children[idxNextNode];
             }
 
             return nextNode;
@@ -41,6 +44,32 @@ public class StringSetImpl implements StringSet {
         public StringSetNode findNextNode(char ch) {
             int idxNextNode = indexChar(ch);
             return children[idxNextNode];
+        }
+
+        public void serializeNode(DataOutputStream output) throws IOException {
+            output.writeInt(sizeSubTree);
+            output.writeBoolean(isUsed);
+
+            for (StringSetNode child : children) {
+                if (child != null) {
+                    output.writeBoolean(true);
+                    child.serializeNode(output);
+                } else {
+                    output.writeBoolean(false);
+                }
+            }
+        }
+
+        public void deserializeNode(DataInputStream input) throws IOException {
+            sizeSubTree = input.readInt();
+            isUsed = input.readBoolean();
+
+            for (int idx = 0; idx < children.length; idx++) {
+                if (input.readBoolean()) {
+                    children[idx] = new StringSetNode();
+                    children[idx].deserializeNode(input);
+                }
+            }
         }
     }
 
@@ -142,6 +171,28 @@ public class StringSetImpl implements StringSet {
     @Override
     public int howManyStartsWithPrefix(String prefix) {
         StringSetNode curNode = findElemNode(prefix);
-        return (curNode == null) ? 0 : curNode.sizeSubTree;
+        if (curNode == null) {
+            return 0;
+        } else {
+            return curNode.sizeSubTree;
+        }
+    }
+
+    @Override
+    public void serialize(OutputStream out) throws SerializationException {
+        try (DataOutputStream output = new DataOutputStream(out)) {
+            root.serializeNode(output);
+        } catch (IOException e) {
+            throw new SerializationException();
+        }
+    }
+
+    @Override
+    public void deserialize(InputStream in) throws SerializationException {
+        try (DataInputStream input = new DataInputStream(in)) {
+            root.deserializeNode(input);
+        } catch (IOException e) {
+            throw new SerializationException();
+        }
     }
 }

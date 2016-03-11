@@ -154,7 +154,6 @@ public class StringSetImpl implements StringSet, StreamSerializable {
         } catch (IOException e) {
             throw new SerializationException();
         }
-
     }
 
     @Override

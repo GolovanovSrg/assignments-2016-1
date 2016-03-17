@@ -173,9 +173,8 @@ public class StringSetImpl implements StringSet, StreamSerializable {
         StringSetNode curNode = findElemNode(prefix);
         if (curNode == null) {
             return 0;
-        } else {
-            return curNode.sizeSubTree;
         }
+        return curNode.sizeSubTree;
     }
 
     @Override

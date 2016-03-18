@@ -2,7 +2,6 @@ package ru.spbau.mit;
 
 import static org.junit.Assert.*;
 
-import jdk.nashorn.internal.objects.annotations.Function;
 import org.junit.Test;
 import static java.util.Arrays.asList;
 
@@ -29,8 +28,9 @@ public class FunctionalJavaTest {
             }
         };
 
-        assertEquals(new Double(1.5), func1.apply(3));
-        assertEquals(new Double(3), func1.compose(func2).apply(3));
+        final int a = 3;
+        assertTrue((double) a / 2 == func1.apply(a));
+        assertTrue(a == func1.compose(func2).apply(a));
     }
 
     @Test
@@ -62,14 +62,16 @@ public class FunctionalJavaTest {
         Predicate<Integer> predic1 = new Predicate<Integer>() {
             @Override
             public Boolean apply(Integer t) {
-                return t >= 0;
+                final int bound = 0;
+                return t >= bound;
             }
         };
 
         Predicate<Integer> predic2 = new Predicate<Integer>() {
             @Override
             public Boolean apply(Integer t) {
-                return t <= 10;
+                final int bound = 10;
+                return t <= bound;
             }
         };
 
@@ -81,11 +83,14 @@ public class FunctionalJavaTest {
         };
 
 
-        assertTrue(predic1.compose(predic3).apply(-1));
-        assertTrue(predic1.or(predic2).apply(11));
-        assertTrue(predic1.and(predic2).apply(5));
-        assertFalse(predic1.and(predic2).apply(11));
-        assertTrue(predic1.not().apply(-1));
+        final int a = -1;
+        final int b = 11;
+        final int c = 5;
+        assertTrue(predic1.compose(predic3).apply(a));
+        assertTrue(predic1.or(predic2).apply(b));
+        assertTrue(predic1.and(predic2).apply(c));
+        assertFalse(predic1.and(predic2).apply(b));
+        assertTrue(predic1.not().apply(a));
         assertFalse(Predicate.ALWAYS_FALSE);
         assertTrue(Predicate.ALWAYS_TRUE);
 
@@ -117,11 +122,13 @@ public class FunctionalJavaTest {
         };
 
 
-        assertEquals(asList(2, 2, 3, 2), Collections.map(func1, col));
+        final int a = 6;
+        final int b = 3; // fckng codestyle
+        assertEquals(asList(2, 2, b, 2), Collections.map(func1, col));
         assertEquals(asList(1, 1, 1), Collections.filter(predic, col));
         assertEquals(asList(1, 1), Collections.takeWhile(predic, col));
         assertEquals(asList(), Collections.takeUnless(predic, col));
-        assertEquals(new Integer(6), Collections.foldl(func2, 1, col));
-        assertEquals(new Integer(6), Collections.foldr(func2, 1, col));
+        assertTrue(a == Collections.foldl(func2, 1, col));
+        assertTrue(a == Collections.foldr(func2, 1, col));
     }
 }

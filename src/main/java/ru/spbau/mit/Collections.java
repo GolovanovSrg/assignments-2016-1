@@ -6,7 +6,9 @@ import java.util.LinkedList;
 /**
  * Created by golovanov on 18.03.16.
  */
-public class Collections {
+public final class Collections {
+
+    private Collections() {}
 
     public static <T, R> ArrayList<R> map(Function1<? super T, R> func, Iterable<T> col) {
         ArrayList<R> newCol = new ArrayList<>();

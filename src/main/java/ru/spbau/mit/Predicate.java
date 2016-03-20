@@ -12,7 +12,7 @@ public abstract class Predicate<T> extends Function1<T, Boolean> {
         return new Predicate<T>() {
             @Override
             public Boolean apply(T p) {
-                return predic.apply(p) || Predicate.this.apply(p);
+                return Predicate.this.apply(p) || predic.apply(p);
             }
         };
     }
@@ -21,7 +21,7 @@ public abstract class Predicate<T> extends Function1<T, Boolean> {
         return new Predicate<T>() {
             @Override
             public Boolean apply(T p) {
-                return predic.apply(p) && Predicate.this.apply(p);
+                return Predicate.this.apply(p) && predic.apply(p);
             }
         };
     }

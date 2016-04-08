@@ -1,6 +1,5 @@
 package ru.spbau.mit;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -35,17 +34,17 @@ public final class SecondPartTasks {
     // Надо промоделировать этот процесс с помощью класса java.util.Random и посчитать,
     // какова вероятность попасть в мишень.
     public static double piDividedBy4() {
-        final int N_ITERATION = 100000;
+        final int nIteration = 100000;
         final Random rnd = new Random();
-        final double CENTER_X = 0.5;
-        final double CENTER_Y =0.5;
-        final double RADIUS = 0.5;
+        final double centerX = 0.5;
+        final double centerY = 0.5;
+        final double radius = 0.5;
 
-        return (double) Stream.generate(() -> Math.sqrt(Math.pow(rnd.nextDouble() - CENTER_X, 2) +
-                                               Math.pow(rnd.nextDouble() - CENTER_Y, 2)))
-                .limit(N_ITERATION)
-                .filter(d -> d <= RADIUS)
-                .count() / N_ITERATION;
+        return (double) Stream.generate(() -> Math.sqrt(Math.pow(rnd.nextDouble() - centerX, 2)
+                                                + Math.pow(rnd.nextDouble() - centerY, 2)))
+                .limit(nIteration)
+                .filter(d -> d <= radius)
+                .count() / nIteration;
     }
 
     // Дано отображение из имени автора в список с содержанием его произведений.

@@ -38,7 +38,6 @@ public class SecondPartTasksTest {
         assertEquals(calculateGlobalOrder(Arrays.asList(PROD_1, PROD_2, PROD_3)), PROD_ALL);
     }
 
-    // CHECKSTYLE:OFF
     private static final List<String> FILES_PATHS = Arrays.asList("src/test/java/ru/spbau/mit/testFindQuotes1.txt",
                                                                   "src/test/java/ru/spbau/mit/testFindQuotes2.txt");
 
@@ -50,5 +49,4 @@ public class SecondPartTasksTest {
     private static final Map<String, Integer> PROD_2 = ImmutableMap.of("Boolka", 20);
     private static final Map<String, Integer> PROD_3 = ImmutableMap.of("Cheboorek", 300);
     private static final Map<String, Integer> PROD_ALL = ImmutableMap.of("Boolka", 120, "Cheboorek", 300);
-    // CHECKSTYLE:ON
 }

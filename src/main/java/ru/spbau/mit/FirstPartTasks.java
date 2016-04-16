@@ -1,9 +1,6 @@
 package ru.spbau.mit;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -70,27 +67,19 @@ public final class FirstPartTasks {
     // (если в альбоме нет ни одного трека, считать, что максимум рейтинга в нем --- 0)
     public static Optional<Album> minMaxRating(Stream<Album> albums) {
         return albums
-                .collect(Collectors.toMap(Function.identity(),
-                            (Album a) -> a.getTracks().stream()
-                                            .mapToInt(Track::getRating)
-                                            .max()
-                                            .orElse(0)))
-                .entrySet().stream()
-                .min((es1, es2) -> es1.getValue().compareTo(es2.getValue()))
-                .map(Map.Entry::getKey);
+                .min(Comparator.comparing(a -> a.getTracks().stream()
+                                                .mapToInt(Track::getRating)
+                                                .max()
+                                                .orElse(0)));
     }
 
     // Список альбомов, отсортированный по убыванию среднего рейтинга его треков (0, если треков нет)
     public static List<Album> sortByAverageRating(Stream<Album> albums) {
         return albums
-                .collect(Collectors.toMap(Function.identity(),
-                        (Album a) -> a.getTracks().stream()
-                                .mapToInt(Track::getRating)
-                                .average()
-                                .orElse(0)))
-                .entrySet().stream()
-                .sorted((es1, es2) -> es2.getValue().compareTo(es1.getValue()))
-                .map(Map.Entry::getKey)
+                .sorted(Comparator.comparing(a -> a.getTracks().stream()
+                                                    .mapToInt(Track::getRating)
+                                                    .average()
+                                                    .orElse(0), Comparator.reverseOrder()))
                 .collect(Collectors.toList());
     }
 
@@ -110,6 +99,6 @@ public final class FirstPartTasks {
 
     // Вернуть поток из объектов класса 'clazz'
     public static <R> Stream<R> filterIsInstance(Stream<?> s, Class<R> clazz) {
-        return s.filter(clazz::isInstance).map(clazz::cast);
+        return (Stream<R>) s.filter(clazz::isInstance);
     }
 }

@@ -9,20 +9,22 @@ public final class Injector {
     private Map<String, Object> classStore;
     private List<String> creatingClasses;
     private final Set<String> dependences;
+    private final String root;
 
-    private Injector(List<String> implementationClassNames) {
+    private Injector(String rootClassName, List<String> implementationClassNames) {
         dependences = new HashSet<>(implementationClassNames);
         creatingClasses = new ArrayList<>();
         classStore = new HashMap<>();
+        root = rootClassName;
     }
 
     private Object createObj(String className) throws Exception {
-        if (creatingClasses.contains(className)) {
-            throw new InjectionCycleException();
-        }
-
         if (classStore.containsKey(className)) {
             return classStore.get(className);
+        }
+
+        if (creatingClasses.contains(className)) {
+            throw new InjectionCycleException();
         }
 
         creatingClasses.add(className);
@@ -46,8 +48,9 @@ public final class Injector {
     }
 
     private ArrayList<String> getParamsName(Constructor<?> constr) throws ClassNotFoundException,
-                                                                          AmbiguousImplementationException,
-                                                                          ImplementationNotFoundException {
+            AmbiguousImplementationException,
+            ImplementationNotFoundException,
+            InjectionCycleException {
         Class<?>[] params = constr.getParameterTypes();
 
         ArrayList<String> res = new ArrayList<>();
@@ -66,6 +69,10 @@ public final class Injector {
             }
 
             if (className == null) {
+                if (params[i].isAssignableFrom(Class.forName(root))) {
+                    throw new InjectionCycleException();
+                }
+
                 throw new ImplementationNotFoundException();
             }
 
@@ -81,7 +88,7 @@ public final class Injector {
      * `implementationClassNames` for concrete dependencies.
      */
     public static Object initialize(String rootClassName, List<String> implementationClassNames) throws Exception {
-        Injector inj = new Injector(implementationClassNames);
+        Injector inj = new Injector(rootClassName, implementationClassNames);
         return inj.createObj(rootClassName);
     }
 }

@@ -33,7 +33,7 @@ public final class Injector {
         ArrayList<String> depClassNames = getParamsName(constr);
 
         Object[] paramsObj = new Object[depClassNames.size()];
-        for(int i = 0; i < depClassNames.size(); i++) {
+        for (int i = 0; i < depClassNames.size(); i++) {
             String name = depClassNames.get(i);
             Object param = createObj(name);
             classStore.put(name, param);
@@ -54,7 +54,7 @@ public final class Injector {
         for (int i = 0; i < params.length; i++) {
             String className = null;
 
-            for(String implClassName : dependences) {
+            for (String implClassName : dependences) {
                 Class<?> implCls = Class.forName(implClassName);
                 if (params[i].isAssignableFrom(implCls)) {
                     if (className != null) {

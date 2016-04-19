@@ -17,12 +17,12 @@ public final class Injector {
     }
 
     private Object createObj(String className) throws Exception {
-        if (classStore.containsKey(className)) {
-            return classStore.get(className);
-        }
-
         if (creatingClasses.contains(className)) {
             throw new InjectionCycleException();
+        }
+
+        if (classStore.containsKey(className)) {
+            return classStore.get(className);
         }
 
         creatingClasses.add(className);

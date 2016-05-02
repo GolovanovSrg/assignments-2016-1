@@ -42,7 +42,7 @@ public final class ThreadPoolImplTest {
         LightFuture<Integer> task2 = T_POOL.submit(() -> 2);
 
         assertTrue(task1.isReady());
-        assertFalse(task2.isReady());
+        assertTrue(task2 == null);
     }
 
 }

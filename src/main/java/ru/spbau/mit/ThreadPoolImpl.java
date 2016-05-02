@@ -72,13 +72,13 @@ public class ThreadPoolImpl implements ThreadPool {
 
         @Override
         public <U> LightFuture<U> thenApply(Function<? super R, ? extends U> f) {
-            LightFutureImpl<U> newTask = new LightFutureImpl<>(this, f);
-
             if (isOn) {
+                LightFutureImpl<U> newTask = new LightFutureImpl<>(this, f);
                 addTask(newTask);
+                return newTask;
             }
 
-            return newTask;
+            return null;
         }
     }
 
@@ -131,12 +131,13 @@ public class ThreadPoolImpl implements ThreadPool {
 
     @Override
     public <R> LightFuture<R> submit(Supplier<R> supplier) {
-        LightFutureImpl<R> newTask = new LightFutureImpl<>(supplier);
         if (isOn) {
+            LightFutureImpl<R> newTask = new LightFutureImpl<>(supplier);
             addTask(newTask);
+            return newTask;
         }
 
-        return newTask;
+        return null;
     }
 
     @Override

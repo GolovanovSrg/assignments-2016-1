@@ -59,7 +59,6 @@ public class ThreadPoolImpl implements ThreadPool {
 
         @Override
         public synchronized R get() throws LightExecutionException, InterruptedException {
-            
             while (!isReady) {
                 wait();
             }

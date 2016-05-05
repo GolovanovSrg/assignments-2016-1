@@ -16,12 +16,14 @@ public class ThreadPoolImpl implements ThreadPool {
         private R result;
         private Throwable throwable;
         private volatile boolean isReady;
+        private volatile LinkedList<LightFutureImpl> thenApplyTasks;
         private final Runnable evaluator;
 
         LightFutureImpl(final Supplier<R> supplier) {
             result = null;
             isReady = false;
             throwable = null;
+            thenApplyTasks = new LinkedList<>();
 
             evaluator = () -> {
                 try {
@@ -31,6 +33,7 @@ public class ThreadPoolImpl implements ThreadPool {
                 }
 
                 isReady = true;
+                submitThenApplyTasks();
             };
         }
 
@@ -39,6 +42,7 @@ public class ThreadPoolImpl implements ThreadPool {
             result = null;
             isReady = false;
             throwable = null;
+            thenApplyTasks = new LinkedList<>();
 
             evaluator = () -> {
                 try {
@@ -49,7 +53,13 @@ public class ThreadPoolImpl implements ThreadPool {
                 }
 
                 isReady = true;
+                submitThenApplyTasks();
             };
+        }
+
+        private synchronized void submitThenApplyTasks() {
+            thenApplyTasks.forEach(ThreadPoolImpl.this::addTask);
+            thenApplyTasks.clear();
         }
 
         @Override
@@ -72,13 +82,21 @@ public class ThreadPoolImpl implements ThreadPool {
 
         @Override
         public <U> LightFuture<U> thenApply(Function<? super R, ? extends U> f) {
-            if (isOn) {
-                LightFutureImpl<U> newTask = new LightFutureImpl<>(this, f);
-                addTask(newTask);
-                return newTask;
+            if (!isOn) {
+                return null;
             }
 
-            return null;
+            LightFutureImpl<U> newTask = new LightFutureImpl<>(this, f);
+
+            if (isReady) {
+                addTask(newTask);
+            } else {
+                synchronized (this) {
+                    thenApplyTasks.addLast(newTask);
+                }
+            }
+
+            return newTask;
         }
     }
 

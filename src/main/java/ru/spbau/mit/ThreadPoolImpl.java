@@ -19,7 +19,7 @@ public class ThreadPoolImpl implements ThreadPool {
         private volatile LinkedList<LightFutureImpl> thenApplyTasks;
         private final Runnable evaluator;
 
-        LightFutureImpl(final Supplier<R> supplier) {
+        LightFutureImpl(final Supplier<? extends R> supplier) {
             result = null;
             isReady = false;
             throwable = null;
@@ -37,7 +37,7 @@ public class ThreadPoolImpl implements ThreadPool {
             };
         }
 
-        <T> LightFutureImpl(final LightFutureImpl<? extends T> first,
+        <T> LightFutureImpl(final LightFutureImpl<T> first,
                                     final Function<? super T, ? extends R> last) {
             result = null;
             isReady = false;
@@ -76,7 +76,6 @@ public class ThreadPoolImpl implements ThreadPool {
             if (throwable != null) {
                 throw new LightExecutionException(throwable);
             }
-
             return result;
         }
 
@@ -92,7 +91,11 @@ public class ThreadPoolImpl implements ThreadPool {
                 addTask(newTask);
             } else {
                 synchronized (this) {
-                    thenApplyTasks.addLast(newTask);
+                    if (isReady) {
+                        addTask(newTask);
+                    } else {
+                        thenApplyTasks.addLast(newTask);
+                    }
                 }
             }
 

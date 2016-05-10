@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-
 public class SmartList<E> extends AbstractList<E> implements List<E> {
     private Object[] mass;
     private int size;

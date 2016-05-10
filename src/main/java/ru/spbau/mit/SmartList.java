@@ -15,7 +15,9 @@ public class SmartList<E> extends AbstractList<E> implements List<E> {
     }
 
     public SmartList(Collection<? extends E> col) {
-        col.forEach(SmartList.this::add);
+        for (E elem : col) {
+            add(elem);
+        }
     }
 
     @Override

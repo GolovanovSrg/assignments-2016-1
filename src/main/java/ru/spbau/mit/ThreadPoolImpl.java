@@ -161,7 +161,7 @@ public class ThreadPoolImpl implements ThreadPool {
     }
 
     // Only for tests
-    public class sizeThreadListTest {
+    public class SizeThreadListTest {
         public int sizeThreadList() {
             return threads.size();
         }

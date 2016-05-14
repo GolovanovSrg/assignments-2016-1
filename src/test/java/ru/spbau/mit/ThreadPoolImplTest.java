@@ -16,7 +16,7 @@ public final class ThreadPoolImplTest {
 
     @Test
     public void numThreads() throws Exception {
-        assertTrue(T_POOL.new sizeThreadListTest().sizeThreadList() == N_THREADS);
+        assertTrue(T_POOL.new SizeThreadListTest().sizeThreadList() == N_THREADS);
     }
 
     @Test

@@ -166,7 +166,9 @@ public class ThreadPoolImpl implements ThreadPool {
     // Only for tests
     public class SizeThreadListTest {
         public int sizeThreadList() {
-            return threads.size();
+            return  threads.stream()
+                    .mapToInt((t) -> t.isAlive() ? 1 : 0)
+                    .sum();
         }
     }
 }

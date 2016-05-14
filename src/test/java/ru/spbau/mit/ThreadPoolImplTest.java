@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 public final class ThreadPoolImplTest {
     private static final int N_THREADS = 10;
     private static final int N_TASKS = 1000;
-    private static final ThreadPoolImpl T_POOL = new ThreadPoolImpl(N_THREADS);
+    private final ThreadPoolImpl T_POOL = new ThreadPoolImpl(N_THREADS);
 
     @Test
     public void numThreads() throws Exception {

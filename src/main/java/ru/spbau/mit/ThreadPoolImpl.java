@@ -1,13 +1,15 @@
 package ru.spbau.mit;
 
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ThreadPoolImpl implements ThreadPool {
 
-    private final LinkedList<Thread> threads = new LinkedList<>();
-    private LinkedList<LightFutureImpl> tasks = new LinkedList<>();
+    private final List<Thread> threads = new LinkedList<>();
+    private Queue<LightFutureImpl> tasks = new LinkedList<>();
     private boolean isOn;
 
     private class LightFutureImpl<R> implements LightFuture<R> {
@@ -15,7 +17,7 @@ public class ThreadPoolImpl implements ThreadPool {
         private R result = null;
         private Throwable throwable = null;
         private volatile boolean isReady = false;
-        private volatile LinkedList<LightFutureImpl> thenApplyTasks = new LinkedList<>();
+        private volatile Queue<LightFutureImpl> thenApplyTasks = new LinkedList<>();
         private final Runnable evaluator;
 
         LightFutureImpl(final Supplier<? extends R> supplier) {
@@ -83,7 +85,7 @@ public class ThreadPoolImpl implements ThreadPool {
                     if (isReady) {
                         addTask(newTask);
                     } else {
-                        thenApplyTasks.addLast(newTask);
+                        thenApplyTasks.add(newTask);
                     }
                 }
             }
@@ -110,7 +112,7 @@ public class ThreadPoolImpl implements ThreadPool {
 
         for (int i = 0; i < n; i++) {
             Thread newThread = new Thread(executor);
-            threads.addLast(newThread);
+            threads.add(newThread);
             newThread.start();
         }
 
@@ -118,7 +120,7 @@ public class ThreadPoolImpl implements ThreadPool {
     }
 
     private synchronized <R> void addTask(LightFutureImpl<R> task) {
-        tasks.addLast(task);
+        tasks.offer(task);
         notify();
     }
 
@@ -127,7 +129,8 @@ public class ThreadPoolImpl implements ThreadPool {
             wait();
         }
 
-        LightFutureImpl<R> task = tasks.pop();
+        LightFutureImpl<R> task = tasks.peek();
+        tasks.poll();
 
         if (tasks.size() == 0 && !isOn) {
             notifyAll();

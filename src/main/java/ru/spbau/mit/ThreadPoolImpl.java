@@ -100,8 +100,8 @@ public class ThreadPoolImpl implements ThreadPool {
                 while (!Thread.interrupted()) {
                     LightFutureImpl task = getTask();
 
+                    task.evaluator.run();
                     synchronized (task) {
-                        task.evaluator.run();
                         task.notifyAll();
                     }
                 }

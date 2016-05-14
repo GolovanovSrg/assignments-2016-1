@@ -6,29 +6,23 @@ import java.util.function.Supplier;
 
 public class ThreadPoolImpl implements ThreadPool {
 
-    private final LinkedList<Thread> threads;
-    private LinkedList<LightFutureImpl> tasks;
-    private volatile int sizeTasksList;
+    private final LinkedList<Thread> threads = new LinkedList<>();
+    private LinkedList<LightFutureImpl> tasks = new LinkedList<>();
     private boolean isOn;
 
     private class LightFutureImpl<R> implements LightFuture<R> {
 
-        private R result;
-        private Throwable throwable;
-        private volatile boolean isReady;
-        private volatile LinkedList<LightFutureImpl> thenApplyTasks;
+        private R result = null;
+        private Throwable throwable = null;
+        private volatile boolean isReady = false;
+        private volatile LinkedList<LightFutureImpl> thenApplyTasks = new LinkedList<>();
         private final Runnable evaluator;
 
         LightFutureImpl(final Supplier<? extends R> supplier) {
-            result = null;
-            isReady = false;
-            throwable = null;
-            thenApplyTasks = new LinkedList<>();
-
             evaluator = () -> {
                 try {
                     result = supplier.get();
-                } catch (RuntimeException e) {
+                } catch (Exception e) {
                     throwable = e;
                 }
 
@@ -39,16 +33,11 @@ public class ThreadPoolImpl implements ThreadPool {
 
         <T> LightFutureImpl(final LightFutureImpl<T> first,
                                     final Function<? super T, ? extends R> last) {
-            result = null;
-            isReady = false;
-            throwable = null;
-            thenApplyTasks = new LinkedList<>();
-
             evaluator = () -> {
                 try {
                     T firstRes = first.get();
                     result = last.apply(firstRes);
-                } catch (RuntimeException | LightExecutionException | InterruptedException e) {
+                } catch (Exception e) {
                     throwable = e;
                 }
 
@@ -104,9 +93,6 @@ public class ThreadPoolImpl implements ThreadPool {
     }
 
     public ThreadPoolImpl(int n) {
-        threads = new LinkedList<>();
-        tasks = new LinkedList<>();
-
         Runnable executor = () -> {
             try {
                 while (!Thread.interrupted()) {
@@ -117,7 +103,9 @@ public class ThreadPoolImpl implements ThreadPool {
                         task.notifyAll();
                     }
                 }
-            } catch (InterruptedException e) { }
+            } catch (InterruptedException e) {
+                return; // stop thread
+            }
         };
 
         for (int i = 0; i < n; i++) {
@@ -131,19 +119,17 @@ public class ThreadPoolImpl implements ThreadPool {
 
     private synchronized <R> void addTask(LightFutureImpl<R> task) {
         tasks.addLast(task);
-        sizeTasksList++;
         notify();
     }
 
     private synchronized <R> LightFutureImpl<R> getTask() throws InterruptedException {
-        while (sizeTasksList == 0) {
+        while (tasks.size() == 0) {
             wait();
         }
 
         LightFutureImpl<R> task = tasks.pop();
-        sizeTasksList--;
 
-        if (sizeTasksList == 0 && !isOn) {
+        if (tasks.size() == 0 && !isOn) {
             notifyAll();
         }
 
@@ -165,12 +151,19 @@ public class ThreadPoolImpl implements ThreadPool {
     public synchronized void shutdown() {
         isOn = false;
 
-        while (sizeTasksList != 0) {
+        while (tasks.size() != 0) {
             try {
                 wait();
             } catch (InterruptedException e) { }
         }
 
         threads.forEach(Thread::interrupt);
+    }
+
+    // Only for tests
+    public class sizeThreadListTest {
+        public int sizeThreadList() {
+            return threads.size();
+        }
     }
 }

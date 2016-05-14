@@ -12,7 +12,12 @@ import static org.junit.Assert.*;
 public final class ThreadPoolImplTest {
     private static final int N_THREADS = 10;
     private static final int N_TASKS = 1000;
-    private static final ThreadPool T_POOL = new ThreadPoolImpl(N_THREADS);
+    private static final ThreadPoolImpl T_POOL = new ThreadPoolImpl(N_THREADS);
+
+    @Test
+    public void numThreads() throws Exception {
+        assertTrue(T_POOL.new sizeThreadListTest().sizeThreadList() == N_THREADS);
+    }
 
     @Test
     public void submit() throws Exception {
@@ -21,7 +26,7 @@ public final class ThreadPoolImplTest {
         ArrayList<LightFuture<Integer>> tasksThenApply = new ArrayList<>();
 
         for (int i = 0; i < N_TASKS; i++) {
-            Integer finalI = i;
+            int finalI = i;
             LightFuture<Integer> task = T_POOL.submit(() -> finalI);
             LightFuture<Integer> newTask = task.thenApply((a) -> a + 1);
             tasks.add(task);

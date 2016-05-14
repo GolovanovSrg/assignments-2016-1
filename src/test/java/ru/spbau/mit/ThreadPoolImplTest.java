@@ -12,11 +12,11 @@ import static org.junit.Assert.*;
 public final class ThreadPoolImplTest {
     private static final int N_THREADS = 10;
     private static final int N_TASKS = 1000;
-    private final ThreadPoolImpl T_POOL = new ThreadPoolImpl(N_THREADS);
+    private final ThreadPoolImpl threadPool = new ThreadPoolImpl(N_THREADS);
 
     @Test
     public void numThreads() throws Exception {
-        assertTrue(T_POOL.new SizeThreadListTest().sizeThreadList() == N_THREADS);
+        assertTrue(threadPool.new SizeThreadListTest().sizeThreadList() == N_THREADS);
     }
 
     @Test
@@ -27,7 +27,7 @@ public final class ThreadPoolImplTest {
 
         for (int i = 0; i < N_TASKS; i++) {
             int finalI = i;
-            LightFuture<Integer> task = T_POOL.submit(() -> finalI);
+            LightFuture<Integer> task = threadPool.submit(() -> finalI);
             LightFuture<Integer> newTask = task.thenApply((a) -> a + 1);
             tasks.add(task);
             tasksThenApply.add(newTask);
@@ -42,9 +42,9 @@ public final class ThreadPoolImplTest {
     @Test
     public void shutdown() throws Exception {
 
-        LightFuture<Integer> task1 = T_POOL.submit(() -> 1);
-        T_POOL.shutdown();
-        LightFuture<Integer> task2 = T_POOL.submit(() -> 2);
+        LightFuture<Integer> task1 = threadPool.submit(() -> 1);
+        threadPool.shutdown();
+        LightFuture<Integer> task2 = threadPool.submit(() -> 2);
 
         assertTrue(task1.isReady());
         assertTrue(task2 == null);

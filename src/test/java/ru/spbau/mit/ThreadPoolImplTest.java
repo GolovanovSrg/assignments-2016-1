@@ -3,6 +3,9 @@ package ru.spbau.mit;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
 import static org.junit.Assert.*;
 
 /**
@@ -16,7 +19,24 @@ public final class ThreadPoolImplTest {
 
     @Test
     public void numThreads() throws Exception {
-        assertTrue(threadPool.new SizeThreadListTest().sizeThreadList() == N_THREADS);
+        final CyclicBarrier bar = new CyclicBarrier(N_THREADS);
+        ArrayList<LightFuture<Integer>> tasks = new ArrayList<>();
+        for (int i = 0; i < N_THREADS; ++i) {
+            LightFuture<Integer> task = threadPool.submit(() -> {
+                try {
+                    bar.await();
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    throw new RuntimeException(e);
+                }
+                return 0;
+            });
+
+            tasks.add(task);
+        }
+
+        for (LightFuture<Integer> task : tasks) {
+            task.get();
+        }
     }
 
     @Test

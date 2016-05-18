@@ -162,13 +162,4 @@ public class ThreadPoolImpl implements ThreadPool {
 
         threads.forEach(Thread::interrupt);
     }
-
-    // Only for tests
-    public class SizeThreadListTest {
-        public int sizeThreadList() {
-            return  threads.stream()
-                    .mapToInt((t) -> t.isAlive() ? 1 : 0)
-                    .sum();
-        }
-    }
 }
